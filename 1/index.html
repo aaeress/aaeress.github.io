@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS180 Project 1: Colorizing Prokudin-Gorskii Images</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        p {
+            max-width: 800px;
+        }
+        ul {
+            max-width: 800px;
+            margin-left: 20px;
+
+        }
+    </style>
+</head>
+<body>
+    <h1>CS180: Project 1</h1>
+    <h2>Colorizing the Prokudin-Gorskii Photo Collection</h2>
+    <p>
+        <strong>Programming Project</strong><br>
+        <strong>Due Date:</strong> September 9th, 2024 at 11:59PM
+    </p>
+    <p>
+        In this project, we utilize image processing techniques to restore and colorize the digitized 
+        photos taken by Sergei Mikhailovich Prokudin-Gorskii (1863-1944), a pioneering photographer 
+        in early color photography. The goal is to align the three color channels (Red, Green, and Blue) 
+        from his glass plate negatives to produce a cohesive and visually accurate color image.
+    </p>
+    
+    <h3>Image Alignment</h3>
+    <p>
+        Initially, I used Euclidean Distance as described in the project documentation to align the three 
+        color channels. However, this method did not yield satisfactory results. After experimenting with 
+        different approaches, I replaced the Euclidean Distance with the <strong>Structural Similarity (SSIM) Index</strong>, 
+        which compares the structural information of two images rather than just pixel-wise differences. 
+        This resulted in much more accurate alignment, significantly improving the final image quality.
+    </p>
+    
+    <h3>Image Pyramid and Recursive Alignment</h3>
+    <p>
+        For handling larger images more efficiently, I implemented a recursive function to construct an 
+        <strong>image pyramid</strong>. By scaling down the image and aligning the smaller version first, the algorithm 
+        was able to refine the alignment as the image size increased. This hierarchical approach allowed 
+        the program to align large images much faster compared to exhaustive search across the original 
+        resolution.<br>
+        <br>
+        For example, when aligning the largest image, <em>self_portrait.tif</em>, without using the image pyramid, 
+        the runtime exceeded 20 minutes and the alignment was incomplete. However, with the image pyramid, the alignment 
+        was completed in just over two minutes, and the result was much more accurate.
+    </p>
+    
+    <h3>Edge Cropping</h3>
+    <p>
+        One common issue with colorized images is misalignment at the borders, which often results in unwanted 
+        artifacts. To address this, I wrote a function that detects rows and columns where most pixels are 
+        either very close to 1 (white) or 0 (black). This function automatically crops the edges that consist 
+        mostly of black or white pixels. While this method works reasonably well, I believe a more efficient 
+        approach might involve cropping the image based on the calculated displacement vectors, rather than 
+        relying solely on pixel intensity.<br>
+        <br>
+        However, a better approach might be to calculate the average pixel value for each row and column. 
+        If every pixel in a row or column is close to the average value, we could crop that row or column, 
+        as this would indicate that the row/column shares the same color.
+    </p>
+    
+    <p>
+        <a href="./1/index.html">Click here to view Project 1 details and results.</a>
+    </p>
+
+    <h1>Image Comparison Table</h1>
+    <table>
+        <tr>
+            <th>Original Image (Media)</th>
+            <th>Processed Image (Output Media)</th>
+            <th>Offset</th>
+        </tr>
+        <tr>
+            <td><img src="compressed_media/train.jpg" alt="train.jpg"></td>
+            <td><img src="compressed_media/output_train.jpg" alt="output_train.jpg"></td>
+            <td>green offset:  (-2, 40) <br>
+                red offset:  (29, 85)</td> <!-- Hardcoded offset example -->
+        </tr>
+        <!-- Repeat this row for other image pairs -->
+        <tr>
+            <td><img src="compressed_media/cathedral.jpg" alt="cathedral.jpg"></td>
+            <td><img src="compressed_media/output_cathedral.jpg" alt="output_cathedral.jpg"></td>
+            <td>green offset:  (2, 5) <br>
+                red offset:  (3, 12)</td>
+        </tr>
+
+        <tr>
+            <td><img src="compressed_media/harvesters.jpg" alt="harvesters.jpg"></td>
+            <td><img src="compressed_media/output_harvesters.jpg" alt="output_harvesters.jpg"></td>
+            <td>green offset:  (14, 59) <br>
+                red offset:  (11, 122)</td>
+        </tr>
+    </table>
+    
+</body>
+</html>
