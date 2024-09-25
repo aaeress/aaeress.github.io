@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fun with Filters and Frequencies!</title>
+    <!-- Include MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+        }
+        .berkeley-logo {
+            width: 200px;
+        }
+        figure {
+            display: block;
+            margin: 20px auto; /* Centers the figure */
+            text-align: center; /* Centers the content inside figure */
+        }
+        .image-row {
+        display: flex;
+        justify-content: center; /* Centers the images horizontally */
+        align-items: center;    /* Centers the images vertically (if they have different heights) */
+        gap: 20px;              /* Adds space between the images */
+        margin: 20px 0;         /* Adds vertical margin to the container */
+        }
+        .image-row img {
+        width: 300px; /* Adjust the width as needed */
+        height: auto;
+        max-width: none; /* Override max-width from the general img selector */
+        }
+        .image-row figure {
+            margin: 0;              /* Removes default margins from figures */
+            text-align: center;     /* Centers captions under images */
+        }
+        .image-row figcaption {
+            margin-top: 8px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Programming Project #2 (proj2)</h1>
+    <h2>Fun with Filters and Frequencies</h2>
+
+    <h1>Fun with Filters and Frequencies!</h1>
+
+    <h2>Part 1: Fun with Filters</h2>
+    <h3>Part 1.1: Finite Difference Operator</h3>
+
+    <p>In this section, we use finite difference operators \( D_x \) and \( D_y \) to compute the gradients of the image, thereby extracting edge information.</p>
+    <figure>
+        <img src="media/cameraman.png" alt="Original Image" style="width:300px; display:block; margin:auto;">
+        <figcaption>Original Image</figcaption>
+    </figure>
+    <ol>
+        <li><strong>Gradient Computation</strong>:
+            <ul>
+                <li>\( D_x \) and \( D_y \) represent the gradient changes of the image in the horizontal and vertical directions, respectively. They can be considered as computing the rate of brightness change in these two directions (i.e., the partial derivatives of the image).</li>
+                <li>By convolving the image with \( D_x \) and \( D_y \), we can obtain gradient images in the x-direction (horizontal) and y-direction (vertical). These gradient images indicate areas in the image where brightness changes sharply, which are potential edges.</li>
+            </ul>
+        </li>
+        <div class="image-row">
+            <figure>
+                <img src="media/p1_1_dx_image.png" alt="p1_1_dx_image.png">
+                <figcaption>Derivative Dx</figcaption>
+            </figure>
+            <figure>
+                <img src="media/p1_1_dy_image.png" alt="p1_1_dy_image.png">
+                <figcaption>Derivative Dy</figcaption>
+            </figure>
+        </div>
+        <li><strong>Gradient Magnitude Image</strong>:
+            <ul>
+                <li>The gradient magnitude image can be calculated by combining the gradients in both directions using the following formula:
+                $$ \text{Gradient Magnitude} = \sqrt{(D_x * I)^2 + (D_y * I)^2} $$
+                where,
+                <ul>
+                    <li>\( I \) is the original image,</li>
+                    <li>\( D_x * I \) and \( D_y * I \) are the gradients of the image in the x and y directions, respectively.</li>
+                </ul>
+                </li>
+                <li>The gradient magnitude image represents the edge strength at each pixel. A larger magnitude indicates a greater brightness change at that pixel, i.e., a more prominent edge.</li>
+            </ul>
+        </li>
+        <figure>
+            <img src="media/p1_1_gradient_magnitude.png" alt="gradient_magnitude Image" style="width:300px; display:block; margin:auto;">
+            <figcaption>Combined Gradient</figcaption>
+        </figure>
+        <li><strong>Binarization Processing</strong>:
+            <ul>
+                <li>To extract significant edges from the gradient magnitude image, we can set a threshold to binarize the gradient magnitude image. Which means, we keep only the gradients greater than the threshold (strong edges) and suppress gradients smaller than the threshold (weak edges or noise) to zero.</li>
+                <li>By repeatedly adjusting this threshold, we can find an appropriate value that makes the edge information in the image as clear as possible while suppressing most of the noise. Here, I choose a threshold of 0.000999999.</li>
+            </ul>
+        </li>
+        <figure>
+            <img src="media/p1_1_binarized.png" alt="binarized Image" style="width:300px; display:block; margin:auto;">
+            <figcaption>Combined Binarized</figcaption>
+        </figure>
+    </ol>
+
+    <h3>Part 1.2: Derivative of Gaussian (DoG) Filter</h3>
+
+    <p>Firstly, we convolve the image with a Gaussian filter to obtain a blurred image. The Gaussian filter is a smoothing filter that can effectively remove high-frequency noise in the image, making the image smoother.</p>
+
+    <figure>
+        <img src="media/p1_2_blur_image.png" alt="p1_2_blur_image" style="width:300px; display:block; margin:auto;">
+        <figcaption>Blur Image</figcaption>
+    </figure>
+    
+    <div class="image-row">
+        <figure>
+            <img src="media/p1_2_blur_image_dx.png" alt="blur_image_dx">
+            <figcaption>Blur Image Derivative Dx</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p1_2_blur_image_dy.png" alt="blur_image_dy">
+            <figcaption>Blur Image Derivative Dy</figcaption>
+        </figure>
+    </div>
+
+    <figure>
+        <img src="media/p1_2_gradient_magnitude_blur.png" alt="gradient_magnitude_blur" style="width:300px; display:block; margin:auto;">
+        <figcaption>Blur Image Combined Gradient</figcaption>
+    </figure>
+
+    <p>Next, we perform edge detection on the blurred image. This is different from directly performing edge detection on the original image in Part 1.1. By comparing the binarized edge images of these two methods, we can observe the following:</p>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/p1_1_binarized.png" alt="p1_1 binarized Image">
+            <figcaption>Binarized edge image in Part 1.1 (without smoothing)</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p1_2_binarized.png" alt="p1_2 binarized Image">
+            <figcaption>Binarized edge image in Part 1.2 (after Gaussian smoothing)</figcaption>
+        </figure>
+    </div>
+
+    <p>We can find that the image processed by Gaussian smoothing performs better in edge detection because the smoothing process suppresses noise while retaining the main edge information.</p>
+
+    <p>In addition, there is another processing method, which is to convolve the Gaussian filter with \( D_x \) and \( D_y \) to obtain the Derivative of Gaussian (DoG) filters, and then convolve these DoG filters with the original image. This way, we can perform smoothing and edge detection in one convolution operation.</p>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/p1_2_DoG_x_large.png" alt="p1_2_DoG_x">
+            <figcaption>Result of \(G * D_x\)</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p1_2_DoG_y_large.png" alt="p1_2_DoG_y">
+            <figcaption>Result of \(G * D_y\)</figcaption>
+        </figure>
+    </div>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/p1_2_image_DoG_x.png" alt="image_DoG_x">
+            <figcaption>Result of \((G * D_x) * I\)</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p1_2_image_DoG_y.png" alt="image_DoG_y">
+            <figcaption>Result of \((G * D_y) * I\)</figcaption>
+        </figure>
+    </div>
+
+    <figure>
+        <img src="media/p1_2_gradient_magnitude_DoG.png" alt="p1_2_gradient_magnitude_DoG" style="width:300px; display:block; margin:auto;">
+        <figcaption>Derivative of Gaussian Combined Gradient</figcaption>
+    </figure>
+
+    <p>The mathematical principle of this process can be explained using the commutative property of convolution:
+    $$ G * (D_x * I) = (G * D_x) * I $$
+    where:
+    </p>
+    <ul>
+        <li>\( G \) is the Gaussian filter</li>
+        <li>\( D_x \) is the horizontal gradient operator</li>
+        <li>\( I \) is the original image</li>
+        <li>\( * \) represents the convolution operation.</li>
+    </ul>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/p1_2_binarized.png" alt="G * (D_x * I)">
+            <figcaption>\( G * (D_x * I) \)</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p1_2_binary_edge_DoG_image.png" alt="(G * D_x) * I">
+            <figcaption>\( (G * D_x) * I \)</figcaption>
+        </figure>
+    </div>
+
+    <p>This shows that convolving the image with the Gaussian filter first and then performing edge detection is equivalent to combining the Gaussian filter and the gradient operator first and then applying it to the original image. This method can reduce the computational cost of two convolutions and improve processing efficiency.</p>
+
+    <h2>Part 2: Fun with Frequencies!</h2>
+
+    <h3>Part 2.1: Image "Sharpening"</h3>
+
+    <p>In this section, our main goal is to sharpen the image. The basic principle of image sharpening is to enhance the high-frequency parts of the image, making the image look clearer and more detailed.</p>
+
+    <ol>
+        <li><strong>Gaussian Smoothing</strong>:
+            <p>Firstly, use a Gaussian filter to smooth the image, which can remove some high-frequency noise in the image, making the image more blurred and smooth.</p>
+        </li>
+
+        <div class="image-row">
+            <figure>
+                <img src="media/taj.jpg" alt="taj">
+                <figcaption>Original Image of Taj Mahal</figcaption>
+            </figure>
+            <figure>
+                <img src="media/Susuwatari.jpg" alt="Susuwatari">
+                <figcaption>Original Image of Susuwatari</figcaption>
+            </figure>
+        </div>
+
+        <div class="image-row">
+            <figure>
+                <img src="media/p2_1_rgb_image_blur_taj.png" alt="blur taj">
+                <figcaption>Blur Image of Taj Mahal</figcaption>
+            </figure>
+            <figure>
+                <img src="media/p2_1_rgb_image_blur_susuwatari.png" alt="blur Susuwatari">
+                <figcaption>Blur Image of Susuwatari</figcaption>
+            </figure>
+        </div>
+
+        <li><strong>High-Frequency Enhancement</strong>:
+            <p>Next, subtract the smoothed image from the original image to obtain the high-frequency parts of the image. This information contains the details and edges in the image.</p>
+        </li>
+
+        <div class="image-row">
+            <figure>
+                <img src="media/p2_1_high_freq_image_taj.png" alt="high freq taj">
+                <figcaption>High Frequency Image of Taj Mahal</figcaption>
+            </figure>
+            <figure>
+                <img src="media/p2_1_high_freq_image_susuwatari.png" alt="high freq Susuwatari">
+                <figcaption>High Frequency Image of Susuwatari</figcaption>
+            </figure>
+        </div>
+
+        <li><strong>Image Sharpening</strong>:
+            <p>Finally, add the high-frequency enhancement back to the original image to get the sharpened image. This process can make the details and edges in the image clearer, and the contrast will also be improved.</p>
+        </li>
+
+        <div class="image-row">
+            <figure>
+                <img src="media/p2_1_sharpen_image_taj.png" alt="sharpen taj">
+                <figcaption>Sharpen Image of Taj Mahal</figcaption>
+            </figure>
+            <figure>
+                <img src="media/p2_1_sharpen_image_susuwatari.png" alt="sharpen Susuwatari">
+                <figcaption>Sharpen Image of Susuwatari</figcaption>
+            </figure>
+        </div>
+    </ol>
+
+    <p><strong>Observations:</strong></p>
+    <h5>Taj Mahal Image</h5>
+    <ul>
+        <li><strong>Sharpened Image:</strong> Details such as the edges of the building and the lines of the windows are clearer, but there is a slight increase in noise, especially in the sky area.</li>
+        <li><strong>Original Image:</strong> The overall appearance is softer and more natural, with smoother detail rendering.</li>
+    </ul>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/taj.jpg" alt="taj">
+            <figcaption>Original Image of Taj Mahal</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p2_1_sharpen_image_taj.png" alt="sharpen taj">
+            <figcaption>Sharpen Image of Taj Mahal</figcaption>
+        </figure>
+    </div>
+
+    <h5>Susuwatari Image</h5>
+    <ul>
+        <li><strong>Sharpened Image:</strong> The edges of the Susuwatari are sharper, and the lines of its eyes and body are more prominent, but the background details appear rougher due to increased noise.</li>
+        <li><strong>Original Image:</strong> The Susuwatari has a more natural feel overall, with smooth background colors and details, and no excessive noise.</li>
+    </ul>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/Susuwatari.jpg" alt="Susuwatari">
+            <figcaption>Original Image of Susuwatari</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p2_1_sharpen_image_susuwatari.png" alt="sharpen Susuwatari">
+            <figcaption>Sharpen Image of Susuwatari</figcaption>
+        </figure>
+    </div>
+
+    <h3>Part 2.2: Hybrid Images</h3>
+
+    <p>In this section, we will create hybrid images by combining different frequency components of two images. Such images will present different visual effects at different viewing distances:</p>
+    <ul>
+        <li><strong>When viewed up close</strong>: High-frequency components (such as clear edges and details) dominate, so the high-frequency image is mainly seen.</li>
+        <li><strong>When viewed from a distance</strong>: Low-frequency components (such as blurred outlines and general shapes) are more noticeable, so the low-frequency image is mainly seen.</li>
+    </ul>
+
+    <ol>
+        <li><strong>Frequency Separation</strong>:
+            <ul>
+                <li>First, we perform different filtering operations on the two images:
+                    <ul>
+                        <li><strong>High-Pass Filter</strong>: Apply a high-pass filter to the first image to retain its high-frequency components (clear details and edges of the image) and remove low-frequency components (blurred parts).</li>
+                        <li><strong>Low-Pass Filter</strong>: Apply a low-pass filter to the second image to retain its low-frequency components (blurred outlines and general shapes) and remove high-frequency components (details).</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <div class="image-row">
+            <figure>
+                <img src="media/p2_2_low_freq_image.png" alt="low_freq_image">
+                <figcaption>Low Frequency Image - Human Face</figcaption>
+            </figure>
+            <figure>
+                <img src="media/p2_2_high_freq_image.png" alt="high_freq_image">
+                <figcaption>High Frequency Image - Cat</figcaption>
+            </figure>
+        </div>
+        <li><strong>Cutoff Frequency</strong>:
+            <ul>
+                <li>The <strong>cutoff-frequency</strong> refers to the threshold frequency used to distinguish between high-frequency and low-frequency components. It determines which frequency components will be retained and which will be filtered out.
+                    <ul>
+                        <li><strong>For Low-Pass Filters</strong>: The cutoff frequency determines how much of the lower frequency content in the image is preserved. Increasing this value will result in the image becoming more blurred.</li>
+                        <li><strong>For High-Pass Filters</strong>: The cutoff frequency determines how much of the higher frequency content in the image is preserved. Increasing this value will make the edges of the image more pronounced.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li><strong>Hybrid Image Generation</strong>:
+            <ul>
+                <li>Overlay the first image processed with the high-pass filter and the second image processed with the low-pass filter (you can use addition or averaging). In this way, we get a hybrid image that will have different visual effects at different viewing distances.</li>
+            </ul>
+        </li>
+        <figure>
+            <img src="media/p2_2_hybrid_image.png" alt="hybrid_image">
+            <figcaption>Hybrid Image Human Face and Cat Face</figcaption>
+        </figure>
+    </ol>
+
+    <p><strong>Urban and Nature</strong></p>
+    <div class="image-row">
+        <figure>
+            <img src="media/im1_aligned_6.png" alt="Urban">
+            <figcaption>Low Frequency Image - Urban</figcaption>
+        </figure>
+        <figure>
+            <img src="media/im2_aligned_6.png" alt="Nature">
+            <figcaption>High Frequency Image - Nature</figcaption>
+        </figure>
+    </div>
+
+    <figure>
+        <img src="media/p2_2_hybrid_nature_and_urban.png" alt="Urban and Nature">
+        <figcaption>Hybrid Image</figcaption>
+    </figure>
+
+    <p><strong>The Starry Night and Mona Lisa</strong></p>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/im2_aligned_5.png" alt="The Starry Night">
+            <figcaption>Low Frequency Image - The Starry Night</figcaption>
+        </figure>
+        <figure>
+            <img src="media/im1_aligned_5.png" alt="Mona Lisa">
+            <figcaption>High Frequency Image - Mona Lisa</figcaption>
+        </figure>
+    </div>
+
+    <figure>
+        <img src="media/p2_2_hybrid_world_famous_paintings.png" alt="world_famous_painting">
+        <figcaption>Hybrid Image</figcaption>
+    </figure>
+
+    <p><strong>Frequency Analysis</strong></p>
+
+    <ol start="4">
+        <li><strong>Frequency Analysis</strong>:
+        </li>
+    </ol>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/p2_2_gray_image_1.png" alt="gray_image_1">
+            <figcaption>Frequency of Urban</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p2_2_gray_image_2.png" alt="gray_image_2">
+            <figcaption>Frequency of Nature</figcaption>
+        </figure>
+    </div>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/p2_2_gray_image_low_freq_image.png" alt="gray_image_low_freq_image">
+            <figcaption>Frequency of Urban (low frequency)</figcaption>
+        </figure>
+        <figure>
+            <img src="media/p2_2_gray_image_high_freq_image.png" alt="gray_image_high_freq_image">
+            <figcaption>Frequency of Nature (high frequency)</figcaption>
+        </figure>
+    </div>
+
+    <figure>
+        <img src="media/p2_2_gray_image_hybrid_image.png" alt="gray_image_hybrid_image">
+        <figcaption>Frequency of the Hybrid Image</figcaption>
+    </figure>
+
+    <h3>Part 2.3: Gaussian and Laplacian Stacks</h3>
+
+    <p>In this section, we will implement Gaussian Stacks and Laplacian Stacks, which are important tools in multi-resolution image processing.</p>
+
+    <ol>
+        <li><strong>Gaussian Stack</strong>
+            <ul>
+                <li>Used to perform multi-level smoothing on images to retain different frequency components of the image. Unlike a pyramid, a stack does not perform downsampling at each level.</li>
+            </ul>
+        </li>
+        <li><strong>Laplacian Stack</strong>
+            <ul>
+                <li>The Laplacian Stack is used to extract edges and detail information of the image; it can be considered as the difference between adjacent layers in the Gaussian Stack.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <p><strong>Demonstration:</strong></p>
+    <ul>
+        <figure>
+            <img src="media/gaussian_stack_apple.png" alt="gaussian_stack_apple">
+            <figcaption>Gaussian Stack Apple</figcaption>
+        </figure>
+        <figure>
+            <img src="media/gaussian_stack_orange.png" alt="gaussian_stack_orange">
+            <figcaption>Gaussian Stack Orange</figcaption>
+        </figure>
+        <figure>
+            <img src="media/laplacian_stack_apple.png" alt="gaussian_stack_apple">
+            <figcaption>Laplacian Stack Apple</figcaption>
+        </figure>
+        <figure>
+            <img src="media/laplacian_stack_orange.png" alt="gaussian_stack_orange">
+            <figcaption>Laplacian Stack Orange</figcaption>
+        </figure>
+    </ul>
+
+    <h3>Part 2.4: Multiresolution Blending (a.k.a. the oraple!)</h3>
+
+    <p>In this section, we will use Gaussian and Laplacian Stacks to perform multi-resolution image blending, achieving seamless transitions between images. </p>
+    
+    <p><strong>Constructing Gaussian and Laplacian Pyramids</strong></p>
+
+    <p>We need to construct the Gaussian and Laplacian stack for both images separately. Additionally, we need to build the Gaussian stack for the mask. The Gaussian stack captures the overall structure of the image, while the Laplacian stack retains the detailed information of the image.</p>
+
+    <p><strong>Blending the Pyramids</strong></p>
+
+    <p>At this stage, we blend the Laplacian stack of the two images using the Gaussian stack of the mask. Specifically, at each level, we apply the following formula:</p>
+    <p>
+    \[ \text{Laplacian}_{\text{blend}} = \text{Laplacian}_{\text{image1}} \times \text{Gaussian}_{\text{mask}} + \text{Laplacian}_{\text{image2}} \times (1 - \text{Gaussian}_{\text{mask}}) \]
+    </p>
+
+    <p>This formula means that the Gaussian stack of the mask is used to balance the Laplacian stack of the two images at each level. A higher mask value leans towards retaining the details of the first image, while a lower mask value leans towards retaining the details of the second image.</p>
+
+    <p><strong>Reconstructing the Final Image</strong></p>
+
+    <p>Finally, we start from the lowest level of the Laplacian image and progressively reconstruct the image level by level. At each level, we add the upsampled Laplacian image to the blended image, until we reach the original resolution. This gives us the final blended image.</p>
+    <figure>
+        <img src="media/oraple_stack.png" alt="oraple_stack">
+        <figcaption>Oraple Stack</figcaption>
+    </figure>
+    <figure>
+        <img src="media/p2_4_oraple.png" alt="Oraple">
+        <figcaption>Oraple</figcaption>
+    </figure>
+</body>
+</html>
