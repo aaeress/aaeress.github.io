@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Programming Project #3 (proj3)</title>
+    <!-- Include MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+        }
+        .image-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .image-row img {
+            width: 300px;
+            height: auto;
+        }
+        .image-row figure {
+            margin: 0;
+            text-align: center;
+        }
+        .image-row figcaption {
+            margin-top: 8px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Programming Project #3 (proj3)</h1>
+<h2>Part 1</h2>
+<p>Here, I present two images where I marked points, along with the triangulation of these points. </p>
+
+<div class="image-row">
+    <figure>
+        <img src="media/1.jpg" alt="">
+        <figcaption>My Face</figcaption>
+    </figure>
+    <figure>
+        <img src="media/2.jpg" alt="">
+        <figcaption>Mom's Face</figcaption>
+    </figure>
+</div>
+
+<div class="image-row">
+    <figure>
+        <img src="media/points_plot.png" alt="">
+        <figcaption>points_plot with triangulation</figcaption>
+    </figure>
+    <figure>
+        <img src="media/average_points_plot.png" alt="">
+        <figcaption>average_points_plot with triangulation</figcaption>
+    </figure>
+</div>
+
+<p>In one instance, I used `middle_points`, which are the average values of all points between the two images, and in the other instance, I used their respective points. It is evident that the triangles generated using `middle_points` slightly deviate from the features of the person, for example, the point that should be at the end of the eyebrow appears between the eyebrows. I used images of me and my mother, and I think this shows that except for the eyebrows, our overall facial features are similar, such as the positions of the eyes, nose, and mouth on the face.</p>
+
+
+
+<h2>Part 2</h2>
+<p>To compute the mid-way face between me and my mother, I followed the instructions and completed the following steps:</p>
+<ol>
+    <li>Calculated the average shape for the points that I plotted on my face and my mother's face.</li>
+    <li>Computed the affine transformation. Using the affine transformation, I calculated the matrix that transforms each triangle in image 1 to the corresponding triangle in image 2, determining how the image is warped.</li>
+    <li>Implemented a warp function. In the warp function, I found the affine matrix and its inverse, applied the inverse affine transformation to map target pixels back to the source image, and used a polygon mask to ensure that mapped pixels did not exceed the boundaries. Bilinear interpolation was applied to get pixel values from the source image, and these pixel values were filled into the output image.</li>
+</ol>
+
+<div class="image-row">
+    <figure>
+        <img src="media/1.jpg" alt="">
+        <figcaption>My Face</figcaption>
+    </figure>
+    <figure>
+        <img src="media/2.jpg" alt="">
+        <figcaption>Mom's Face</figcaption>
+    </figure>
+</div>
+
+<figure>
+    <img src="media/mid_way_face.jpg" alt="" style="width:600px; display:block; margin:auto;">
+</figure>
+
+<h2>Part 3</h2>
+<p>Using the warp function from Part 2, I implemented another function: `morphed_im = morph(im1, im2, im1_pts, im2_pts, tri, warp_frac, dissolve_frac);` This function allows me to generate a warped image with different warp_frac and dissolve_frac. By stitching these images together, I created a GIF showing the morphing process from my image to my mother's image.</p>
+
+<figure>
+    <img src="media/morph_sequence.gif" alt="Morphing GIF" style="width:400px;">
+    <figcaption>GIF showing the morphing process from my face to my mom's face.</figcaption>
+</figure>
+
+<h2>Part 4</h2>
+<p>In this part, I used facial images and point data from the `FEI Face Database` to calculate the mean face. While processing the images, I found that adding four points at the corners of the image helps with warping.</p>
+
+<ol>
+    <li>First, I computed the average points from all images.</li>
+    <li>Next, I warped each image to the position of the average points.</li>
+</ol>
+
+<div class="image-row">
+    <figure>
+        <img src="media/warped_face_0.jpg" alt="">
+    </figure>
+    <figure>
+        <img src="media/warped_face_1.jpg" alt="">
+    </figure>
+</div>
+
+<div class="image-row">
+    <figure>
+        <img src="media/warped_face_2.jpg" alt="">
+    </figure>
+    <figure>
+        <img src="media/warped_face_3.jpg" alt="">
+    </figure>
+</div>
+
+<figure>
+    <img src="media/warped_face_4.jpg" alt="" style="width:300px; display:block; margin:auto;">
+</figure>
+
+<ul>
+    <li>All warped images combined, divided by the total number of images, to obtain the average face.</li>
+</ul>
+
+<figure>
+    <img src="media/average_face.jpg" alt="" style="width:300px; display:block; margin:auto;">
+    <figcaption>average_face</figcaption>
+</figure>
+
+<p>When I warped my image to the average face, I noticed my face stretched out. Similarly, when I warped the average face onto my face, the distances between my facial features shrunk.</p>
+
+<div class="image-row">
+    <figure>
+        <img src="media/my_face_to_avg_face.jpg" alt="">
+        <figcaption>my_face_to_avg_face</figcaption>
+    </figure>
+    <figure>
+        <img src="media/avg_face_to_my_face.jpg" alt="">
+        <figcaption>avg_face_to_my_face</figcaption>
+    </figure>
+</div>
+
+<h2>Part 5</h2>
+<p>For this part, to create a caricature effect, I first computed the shape difference between my face and the average face, i.e., the difference in the key feature points. Then, I used a scalar value (alpha) to exaggerate the differences. Based on the newly generated caricature points, I warped the image to get the final effect.</p>
+
+<figure>
+    <img src="media/caricature_image.jpg" alt="" style="width:300px; display:block; margin:auto;">
+    <figcaption>caricature_image</figcaption>
+</figure>
+
+<h2>Bells and Whistles</h2>
+<p>I found an average male face from China on the web. After aligning my face and the average male face, I used the morph function to create images morphing just the shape, just the appearance, and both.</p>
+
+<div class="image-row">
+    <figure>
+        <img src="media/10.jpeg" alt="">
+        <figcaption>Average Male Face - China</figcaption>
+    </figure>
+    <figure>
+        <img src="media/9.jpeg" alt="">
+        <figcaption>My Face - China</figcaption>
+    </figure>
+</div>
+
+<div class="image-row">
+    <figure>
+        <img src="media/shape_only_image.jpg" alt="">
+        <figcaption>shape_only_image</figcaption>
+    </figure>
+    <figure>
+        <img src="media/appearance_only_image.jpg" alt="">
+        <figcaption>appearance_only_image</figcaption>
+    </figure>
+</div>
+
+<figure>
+    <img src="media/shape_and_appearance_image.jpg" alt="" style="width:400px;">
+    <figcaption>shape_and_appearance_image</figcaption>
+</figure>
+
+</body>
+</html>
