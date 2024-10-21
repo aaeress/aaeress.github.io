@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project 4a: Image Warping and Mosaicing</title>
+    <!-- Include MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+        }
+        .berkeley-logo {
+            width: 200px;
+        }
+        figure {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .image-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .image-row img {
+            width: 300px;
+            height: auto;
+        }
+        .image-row figure {
+            margin: 0;
+            text-align: center;
+        }
+        .image-row figcaption {
+            margin-top: 8px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Programming Project #4a</h1>
+    <h2>IMAGE WARPING and MOSAICING</h2>
+
+    <h1>Shoot the Pictures</h1>
+    <figure>
+        <img src="media/Chihiro_and_Haku_with_points.jpg" alt="gradient_magnitude Image" style="width:300px; display:block; margin:auto;">
+    </figure>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/image_1_with_points.jpg" alt="p1_1_dx_image.png">
+        </figure>
+        <figure>
+            <img src="media/image_3_with_points.jpg" alt="p1_1_dy_image.png">
+        </figure>
+    </div>
+
+    <h2>Recover Homographies</h2>
+    <p>In this step, I implemented a function to compute the homography matrix. It takes the corresponding points from two images as parameters and calculates the homography matrix. According to the definition, the relationship can be expressed as:</p>
+    <p>
+    $$ A \cdot h = b $$
+    </p>
+    <p>Here, \( A \) is a matrix that is constructed using the coordinates of the points from the source image. For each pair of corresponding points \( p = (x, y) \) in the source image and \( p' = (x', y') \) in the destination image, we can define the matrix \( A \) for a single point as:</p>
+    <p>
+    $$ A =
+    \begin{bmatrix}
+    x & y & 1 & 0 & 0 & 0 & -x' \cdot x & -x' \cdot y \\
+    0 & 0 & 0 & x & y & 1 & -y' \cdot x & -y' \cdot y
+    \end{bmatrix}
+    $$
+    </p>
+    <p>The vector \( b \) represents the destination points, and is defined as:</p>
+    <p>
+    $$ b =
+    \begin{bmatrix}
+    x' \\
+    y'
+    \end{bmatrix}
+    $$
+    </p>
+    <p>For multiple points, I append additional rows to both \( A \) and \( b \). After solving the system of equations \( A \cdot h = b \), I recover the homography \( h \) and reshape it into a \( 3 \times 3 \) matrix \( H \).</p>
+
+    <h2>Warp the Images</h2>
+    <p>I utilized the warp function that I previously implemented in project 3. In this task, I modified the function to work with homographies for more flexible transformations. For image rectification, I retained the polygon mask to focus the transformation on specific regions.</p>
+
+    <p>For mosaic image stitching, I developed a new warp function without a polygon mask to stitch images from different angles. I calculated the grid coordinates of the target image, applied the homography, and performed inverse mapping. I also applied a validity check and bilinear interpolation to ensure correct pixel placement.</p>
+
+    <h2>Image Rectification</h2>
+    <p>I marked the corners of the poster in the image, computed the homography to transform the poster into a rectangular form, and applied interpolation to assign pixel values smoothly.</p>
+    <div class="image-row">
+        <figure>
+            <img src="media/Chihiro_and_Haku.jpg" alt="p1_1_dx_image.png">
+        </figure>
+        <figure>
+            <img src="media/warped_image.jpg" alt="p1_1_dy_image.png">
+        </figure>
+    </div>
+
+    <h2>Blend the images into a mosaic</h2>
+    <p>First, I used the ComputeH function to calculate the homography matrix between two images. Then, I computed the boundary of the mosaic canvas to ensure it was large enough to fit both images. A translation matrix was applied to adjust the images' positions. Finally, Gaussian-blurred masks ensured smooth blending between the stitched images.</p>
+    <figure>
+        <img src="media/mosaic.jpg" alt="gradient_magnitude Image" style="width:300px; display:block; margin:auto;">
+    </figure>
+</body>
+</html>
