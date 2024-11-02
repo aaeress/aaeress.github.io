@@ -124,5 +124,149 @@
     <figure>
         <img src="media/mosaic.jpg" alt="gradient_magnitude Image" style="width:300px; display:block; margin:auto;">
     </figure>
+
+    <title>Project 4b: Detecting Corner Features in an Image</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .image-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Programming Project #4b</h1>
+    <h2>Detecting Corner Features in an Image</h2>
+
+    <h3>Initial Harris Corner Detection</h3>
+    <p>After running the <code>get_harris_corners</code> function, we obtain an image densely packed with detected feature points.</p>
+    <div class="image-row">
+        <figure>
+            <img src="media/harris_corners_original.png" alt="Harris Corners Image" style="width:600px;"">
+            <figcaption>Initial Harris Corners</figcaption>
+        </figure>
+    </div>
+    <p>After running <code>get_harris_corners</code>, we get too many feature points in the image. To address this, I tried two methods:</p>
+    <ol>
+        <li>Increased the value for <code>min_distance</code> parameter to maintain a minimum distance between feature points.</li>
+        <li>Added the <code>threshold_rel</code> parameter in the <code>peak_local_max</code> function to select stronger feature points and filter out the weaker ones.</li>
+    </ol>
+    <div class="image-row">
+        <figure>
+            <img src="media/harris_corners_improved.jpg" alt="Improved Harris Corners" style="width:600px;">
+            <figcaption>Harris Corners After Improvement</figcaption>
+        </figure>
+    </div>
+
+    <h3>Adaptive Non-Maximal Suppression (ANMS)</h3>
+    <p>After my improvement, the feature points were still not evenly distributed. This issue was resolved by implementing the ANMS algorithm as described in the paper.</p>    
+    <p>The core idea of this algorithm is to compute the minimum distance between each feature point and any "stronger" feature point, then keep the point with the maximum minimum distance. This ensures retained points are not only strong but also evenly distributed.</p>
+    <div class="image-row">
+        <figure>
+            <img src="media/after_anms.png" alt="ANMS Image" style="width:900px;">
+            <figcaption>Feature Points with ANMS</figcaption>
+        </figure>
+    </div>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/image_2_anms.jpg" alt="ANMS Image" style="width:900px;">
+            <figcaption>Feature Points with ANMS</figcaption>
+        </figure>
+    </div>
+
+    <h3>Extracting Feature Descriptors</h3>
+    <p>For each feature point selected through ANMS, we need to extract its feature descriptor. Based on the paper’s recommendations, I used the following method:</p>
+    <ol>
+        <li>Extracted a 40x40 image patch centered on each feature point.</li>
+        <li>Sampled the patch with a 5-pixel interval to obtain an 8x8 feature descriptor.</li>
+        <li>Normalized the sampled values.</li>
+    </ol>
+    <div class="image-row">
+        <figure>
+            <img src="media/first_two_patches.jpg" alt="Sample Patches">
+            <figcaption>Sample Patches</figcaption>
+        </figure>
+    </div>
+
+    <h3>Feature Matching</h3>
+    <p>For feature matching, I applied Lowe's ratio test: the reliability of a match is determined by the distance ratio between the nearest and second-nearest neighbors.</p>
+    <div class="image-row">
+        <figure>
+            <img src="media/matches_1_2_anms_1.jpg" alt="Feature Matching with Errors" style="width:900px;">
+            <figcaption>Feature Matching</figcaption>
+        </figure>
+    </div>
+
+    <div class="image-row">
+        <figure>
+            <img src="media/matches_3_4_anms.jpg" alt="Feature Matching with Errors" style="width:900px;">
+            <figcaption>Feature Matching</figcaption>
+        </figure>
+    </div>
+    <p>There are many obvious wrong matches, probably because of repeated patterns in the image.</p>
+
+    <h3>RANSAC for Robust Homography Estimation</h3>
+    <p>To remove incorrect matches, I implemented the RANSAC algorithm. This algorithm iteratively samples random points to find the optimal homography matrix and identifies inliers that conform to this transformation.</p>
+    <div class="image-row">
+        <figure>
+            <img src="media/inlier_matches_1_2_2.jpg" alt="Feature Matching with RANSAC" style="width:900px;">
+            <figcaption>Feature Matching (RANSAC)</figcaption>
+        </figure>
+    </div>
+    <div class="image-row">
+        <figure>
+            <img src="media/inlier_matches_1_2_3.jpg" alt="Feature Matching with RANSAC" style="width:900px;">
+            <figcaption>Feature Matching (RANSAC)</figcaption>
+        </figure>
+    </div>
+    <div class="image-row">
+        <figure>
+            <img src="media/inlier_matches_1_2_4.jpg" alt="Feature Matching with RANSAC" style="width:900px;">
+            <figcaption>Feature Matching (RANSAC)</figcaption>
+        </figure>
+    </div>
+    <p>There are few issues we can see from the images.<p>
+    <p>The first issue is the misalignment in image stitching, where image elements are not precisely aligned. This is likely due to insufficient precision in feature point matching. Specifically, my <code>ransac_homography</code> function implementation may not be robust enough to effectively filter out high-quality matching point pairs.</p>
+    <p>The second issue is the lack of natural blending in image fusion, resulting in abrupt transitions at the stitching boundaries. This is primarily because I only used simple Gaussian blur for blending, rather than adopting a more advanced multi-resolution pyramid fusion method, which prevents us from effectively handling image details at different frequency levels.</p>
+    <div class="image-row">
+        <figure>
+            <img src="media/group2/mosaic1_2_auto.jpg" alt="Feature Matching with RANSAC">
+            <figcaption>Mosaic (RANSAC)</figcaption>
+        </figure>
+    </div>
+    <div class="image-row">
+        <figure>
+            <img src="media/group2/mosaic2_3_auto.jpg" alt="Feature Matching with RANSAC">
+            <figcaption>Mosaic (RANSAC)</figcaption>
+        </figure>
+    </div>
+    <div class="image-row">
+        <figure>
+            <img src="media/group2/mosaic3_4_auto.jpg" alt="Feature Matching with RANSAC">
+            <figcaption>Mosaic (RANSAC)</figcaption>
+        </figure>
+    </div>
+
+    <h3>The Coolest Thing I Learned from This Project</h3>
+    <p>The most exciting thing I learned from this project was the ANMS algorithm discussed in the paper. Initially, my approach was intuitive: select points with higher intensity. I tried various methods to improve the <code>get_harris_corners</code> function, such as increasing the <code>min_distance</code> parameter or setting a threshold for stronger feature points. However, these methods didn’t produce satisfactory results.</p>
+    <p>Implementing ANMS provided a better solution. Its core idea is not merely finding the 'strongest' points but ensuring a uniform distribution across the image. This reminded me of other fields, such as maze generation algorithms, where a similar approach divides large terrains into smaller sections before processing. Although I had encountered this 'spatial balancing' concept in other contexts, seeing its new application here was a pleasant surprise. It proves once again that good algorithmic ideas are often universal and can be applied flexibly.</p>
 </body>
 </html>

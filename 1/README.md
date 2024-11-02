@@ -12,4 +12,4 @@ SID: 3039136453
 
 Email: aaeress@berkeley.edu
 
-Link to Webpage Submission:
+Link to Webpage Submission: https://aaeress.github.io/1/index.html
