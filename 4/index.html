@@ -245,7 +245,7 @@
     </div>
     <p>There are few issues we can see from the images.<p>
     <p>The first issue is the misalignment in image stitching, where image elements are not precisely aligned. This is likely due to insufficient precision in feature point matching. Specifically, my <code>ransac_homography</code> function implementation may not be robust enough to effectively filter out high-quality matching point pairs.</p>
-    <p>The second issue is the lack of natural blending in image fusion, resulting in abrupt transitions at the stitching boundaries. This is primarily because I only used simple Gaussian blur for blending, rather than adopting a more advanced multi-resolution pyramid fusion method, which prevents us from effectively handling image details at different frequency levels.</p>
+    <p>The second issue is the lack of natural blending in image fusion, resulting in abrupt transitions at the stitching boundaries. This is primarily because I only used simple Gaussian blur for blending, rather than adopting a more advanced multi-resolution pyramid fusion method, which prevents me from effectively handling image details at different frequency levels.</p>
     <div class="image-row">
         <figure>
             <img src="media/group2/mosaic1_2_auto.jpg" alt="Feature Matching with RANSAC">
