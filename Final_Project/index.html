@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>High Dynamic Range Imaging Project</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .image-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .image-row figure {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>High Dynamic Range Imaging Project</h1>
+    <p>Based on the starter code we need to implement four key functions to achieve high dynamic range imaging and tone mapping:</p>
+<ul>
+    <li><code>solve_g</code>: Recover the imaging system's response function and Radiance from multiple images with different exposure times.</li>
+    <li><code>hdr</code>: Reconstruct the HDR radiance map in accordance to section 2.2 of Debevec and Malik 1997.</li>
+    <li><code>tm_global_simple</code>: simple global tone mapping operation</li>
+    <li><code>tm_durand</code>: Local tone mapping using bilateral filtering</li>
+</ul>
+
+<h2><code>solve_g</code> Function</h2>
+<p>Here we should find the <code>g</code> and <code>lE</code>, which:</p>
+<ul>
+    <li><code>g</code> is <code>g[z]: the log exposure corresponding to pixel value z (where z is between 0 - 255).</code></li>
+    <li><code>lE</code> is <code>lE[i]: the log film irradiance at pixel location i.</code></li>
+</ul>
+<p>I followed the Matlab Code from the last page of the <code>Debevec and Malik 1997's Siggraph paper</code>.</p>
+
+<figure>
+    <img src="media/MATLAB_code.jpg" alt="">
+</figure>
+
+<h2><code>hdr</code> Function</h2>
+<p>This function implements the formula for reconstructing HDR radiance map from exposure images using the recovered system response function:</p>
+$$ \ln E_i = \frac{\sum_{j=1}^P w(Z_{ij})(g(Z_{ij}) - \ln \Delta t_j)}{\sum_{j=1}^P w(Z_{ij})} $$
+<p>Where:</p>
+<ul>
+    <li>$E_i$ is the radiance value at pixel i</li>
+    <li>$w(Z_{ij})$ is the weighting function for pixel value $Z_{ij}$</li>
+    <li>$g$ is the recovered response function from <code>solve_g</code></li>
+    <li>$\Delta t_j$ is the exposure time for image j</li>
+    <li>$P$ is the number of images</li>
+</ul>
+<p>The formula needs to be applied separately to R, G, B channels of the image to get the final HDR radiance map.</p>
+
+<h2><code>tm_global_simple</code> Function</h2>
+<p>Simple global tone mapping operator using Reinhard's equation:</p>
+$$ E_{display} = \frac{E_{world}}{1 + E_{world}} $$
+<p>Where:</p>
+<ul>
+    <li>$E_{world}$ is the input HDR radiance map.</li>
+    <li>$E_{display}$ is the tone mapped output.</li>
+</ul>
+
+<h2><code>tm_durand</code> Function</h2>
+<p>Based on the instruction that professor gives on the website:</p>
+<p>You'll be implementing a simplified version of <a href="http://people.csail.mit.edu/fredo/PUBLI/Siggraph2002/DurandBilateral.pdf">Durand 2002</a>.</p>
+<p>The steps are roughly as follows:</p>
+<ol>
+    <li>Your input is linear RGB values of radiance.</li>
+    <li>Compute the intensity (I) by averaging the color channels.</li>
+    <li>Compute the chrominance channels: (R/I, G/I, B/I)</li>
+    <li>Compute the log intensity: L = log2(I)</li>
+    <li>Filter that with a bilateral filter: B = bf(L)</li>
+    <li>Compute the detail layer: D = L - B</li>
+    <li>Apply an offset and a scale to the base: B' = (B - o) * s
+        <ol>
+            <li>The offset is such that the maximum intensity of the base is 1. Since the values are in the log domain, o = max(B).</li>
+            <li>The scale is set so that the output base has dR stops of dynamic range, i.e., s = dR / (max(B) - min(B)). Try values between 2 and 8 for dR, that should cover an interesting range. Values around 4 or 5 should look fine.</li>
+        </ol>
+    </li>
+    <li>Reconstruct the log intensity: O = 2^(B' + D)</li>
+    <li>Put back the colors: R',G',B' = O * (R/I, G/I, B/I)</li>
+    <li>Apply gamma compression. Without gamma compression the result will look too dark. Values around 0.5 should look fine (e.g. result.^0.5). You can also apply the simple global intensity scaling to your final output.</li>
+</ol>
+
+<h2>Deliverable</h2>
+<h3>Response Curves Analyze</h3>
+<p>In these plots, we observe varying quality of color balance across different scenes.</p>
+<ul>
+    <li>arch</li>
+    <figure>
+        <img src="media/arch_Figure_1.png" alt="">
+    </figure>
+    <li>bonsai</li>
+    <figure>
+        <img src="media/bonsai_Figure_1.png" alt="">
+    </figure>
+    <li>chapel</li>
+    <figure>
+        <img src="media/chapel_Figure_1.png" alt="">
+    </figure>
+    <li>garage</li>
+    <figure>
+        <img src="media/garage_Figure_1.png" alt="">
+    </figure>
+</ul>
+<h3>HDR Radiance Map</h3>
+<p>The radiance maps visualize the true light intensity distribution in each scene, with the heat map representation (left) showing the dynamic range and the reconstructed HDR image (right) showing the full scene detail.</p>
+<ul>
+    <li>arch</li>
+    <figure>
+        <img src="media/arch_Figure_2.png" alt="">
+    </figure>
+    <li>bonsai</li>
+    <figure>
+        <img src="media/bonsai_Figure_2.png" alt="">
+    </figure>
+    <li>chapel</li>
+    <figure>
+        <img src="media/chapel_Figure_2.png" alt="">
+    </figure>
+    <li>garage</li>
+    <figure>
+        <img src="media/garage_Figure_2.png" alt="">
+    </figure>
+</ul>
+<h3>Tone Mapping</h3>
+<p>The comparison of three different tone mapping methods shows the progression from simple to sophisticated approaches. </p>
+<ul>
+    <li>arch</li>
+    <figure>
+        <img src="media/arch_Figure_3.png" alt="">
+    </figure>
+    <li>bonsai</li>
+    <figure>
+        <img src="media/bonsai_Figure_3.png" alt="">
+    </figure>
+    <li>chapel</li>
+    <figure>
+        <img src="media/chapel_Figure_3.png" alt="">
+    </figure>
+    <li>garage</li>
+    <figure>
+        <img src="media/garage_Figure_3.png" alt="">
+    </figure>
+</ul>
+
+<h2>Bells & Whistles</h2>
+<p>Try the algorithm on your own photos!</p>
+<h3>Response Curves Analyze</h3>
+<figure>
+    <img src="media/kitchen_Figure1.png" alt="">
+</figure>
+<p>Looking at this response curves, we can observe that the RGB channels exhibit very similar response patterns, with the three curves closely aligned and following nearly identical trajectories. This consistency across color channels indicates good color balance in the imaging system and suggests minimal color distortion in the captured images. </p>
+<h3>HDR Radiance Map</h3>
+    <figure>
+        <img src="media/kichen_Figure2.png" alt="">
+    </figure>
+<p>From the left image, we can clearly observe that the window area has significantly high radiance, while the indoor areas show much lower radiance levels. As a result, in our synthesized HDR image, the window area appears notably overexposed.</p>
+<h3>Tone Mapping</h3>
+    <figure>
+        <img src="media/kitchen_Figure3.png" alt="">
+    </figure>
+<p>In this diagram, we compare three different tone mapping approaches: global scale, global simple, and Durand's bilateral filtering method. While the global simple method produces acceptable results, it suffers from considerable detail loss in both highlight and shadow regions. We can observe that Durand's method performs the best, successfully preserving fine details while maintaining natural contrast and achieving better local adaptation across the image.</p>
+</body>
+</html>
